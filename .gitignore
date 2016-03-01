@@ -26,3 +26,10 @@
 *.exe
 *.out
 *.app
+server
+client
+
+# Other junk
+*.swp
+*.swo
+*.fuse*
