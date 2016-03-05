@@ -1,7 +1,7 @@
 /*
  * Source file: server.cpp
  * Date: March 01, 2016
- * Revision: v1
+ * Revision: v2 -- March 05, 2016 -- broke up main into component functions
  * Designer: Dylan & Dhivya
  * Programmer: Dylan & Dhivya
  * Functions:
@@ -29,13 +29,13 @@
 int main(int argc, char * argv[])
 {
     // init structures
-    int listen_socket, client_len, port, sockopt_arg, max_descriptors, max_clients;
+    int listen_socket, port, max_descriptors, max_clients;
     int new_socket, sockfd;
     int nready;
     int client[FD_SETSIZE]; // array to hold clients
     int i; // loop variable
-    struct sockaddr_in server, client_addr;
-    char *bp, buf[BUFLEN];
+    int client_pos = 0;
+    char *bp;
     int n;
     fd_set allset, rset;
     bp = (char*)malloc(sizeof(char) * BUFLEN); // MAKE SURE YOU FREE THIS
@@ -52,27 +52,11 @@ int main(int argc, char * argv[])
             fprintf(stderr, "Usage: %s [port]\n", argv[0]);
             exit(1);
     }
-    // create a listening socket 
-    if ((listen_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    // start the server
+    listen_socket = start_server(port);
+    if (listen_socket == 0)
     {
-        perror("Failed to create listen_socket");
-        exit(1);
-    }
-    // set resuse addr
-    sockopt_arg = 1;
-    if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &sockopt_arg, sizeof(int)) == -1)
-    {
-        perror("Failed to setsockopt");
-        exit(1);
-    }
-    // bind listen socket
-    memset(&server, 0, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_port = htons(port);
-    server.sin_addr.s_addr = htonl(INADDR_ANY);
-    if (bind(listen_socket, (struct sockaddr *)&server, sizeof(server)) == -1)
-    {
-        perror("Failed to bind");
+        // failed to start server
         exit(1);
     }
     listen(listen_socket, MAX_CONN);
@@ -94,29 +78,15 @@ int main(int argc, char * argv[])
         // create new client socket
         if (FD_ISSET(listen_socket, &rset))
         {
-            client_len = sizeof(client_addr);
-            if ((new_socket = accept(listen_socket, (struct sockaddr *) &client_addr, (socklen_t *)&client_len)) == -1)
+            if ((new_socket = add_client(listen_socket, client, &client_pos)) == -1)
             {
-                perror("Accept error");
+                fprintf(stderr, "Unable to add client.\n");
                 exit(1);
             }
-            for (i = 0; i < FD_SETSIZE; i++)
-            {
-                if (client[i] == -1)
-                {
-                    client[i] = new_socket;
-                    break;
-                }
-            }
-            if (i == FD_SETSIZE)
-            {
-                fprintf(stderr, "Too many clients.\n");
-                exit(1);
-            }
+            // update socket set
             FD_SET(new_socket, &allset);
             max_descriptors = (new_socket > max_descriptors) ? new_socket : max_descriptors;
-            max_clients = (i > max_clients) ? ++i : max_clients;
-            fprintf(stderr, "New client #%d\n", i);
+            max_clients = (client_pos > max_clients) ? client_pos : max_clients;
             if (--nready <= 0)
             {
                 continue;
@@ -155,6 +125,101 @@ int main(int argc, char * argv[])
     // free resources
     free(bp);
     return 0;
+}
+
+/*
+ * Function: add_client
+ * Date: march 05, 2016
+ * Revision: v1
+ * Designer: Dylan
+ * Programmer: dylan
+ * int add_client(int listen_socket, int * clients, int * client_pos)
+ *                  listen_socket : socket on which an incoming
+ *                                  connection was signalled
+ *                  clients : array of client sockets to add the 
+ *                            new connection to
+ *                  client_pos : indicates position of the new
+ *                               socket within the client array
+ * returns: -1 upon failure, the descriptor of the new socket
+ * Notes:
+ *      Adds a client to the client array given a listening socket.            `
+ *      If client_pos is null, no indicator of position will be returned.
+ */
+int add_client (int listen_socket, int * clients, int * client_pos)
+{
+    int client_len;
+    struct sockaddr_in client_addr;
+    int i;
+    int new_socket;
+    client_len = sizeof(client_addr);
+    if ((new_socket = accept(listen_socket, (struct sockaddr *) &client_addr, (socklen_t *)&client_len)) == -1)
+    {
+        perror("Accept error");
+        return -1;
+    }
+    for (i = 0; i < FD_SETSIZE; i++)
+    {
+        if (clients[i] == -1)
+        {
+            clients[i] = new_socket;
+            break;
+        }
+    }
+    if (client_pos != 0)
+    {
+        *client_pos = i;
+        if (*client_pos == FD_SETSIZE)
+        {
+            fprintf(stderr, "Too many clients.\n");
+            return -1;
+        }
+    }
+    return new_socket;
+}
+
+/*
+ * Function: start_server
+ * Date: march 05, 2016
+ * Revision: v1
+ * Designer: Dylan
+ * Programmer: Dylan
+ * int start_server(char *host, int port)
+ *                      host : hostname or address
+ *                      port : port to use
+ * Returns: a file descriptor for the listening socket
+ *          on failure this will be 0
+ * Notes:
+ *  Starts a listening socket.
+ */
+int start_server(int port)
+{
+    int sockfd;
+    int sockopt_arg;
+    struct sockaddr_in server;
+    // create a listening socket 
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    {
+        perror("Failed to create listen socket");
+        return 0;
+    }
+    // set resuse addr
+    sockopt_arg = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &sockopt_arg, sizeof(int)) == -1)
+    {
+        perror("Failed to setsockopt");
+        return 0;
+    }
+    // bind listen socket
+    memset(&server, 0, sizeof(server));
+    server.sin_family = AF_INET;
+    server.sin_port = htons(port);
+    server.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) == -1)
+    {
+        perror("Failed to bind");
+        return 0;
+    }
+    return sockfd;
 }
 
 /*
