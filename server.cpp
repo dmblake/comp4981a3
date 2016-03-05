@@ -90,6 +90,7 @@ int main(int argc, char * argv[])
         rset = allset;
         // use select to determine if a socket has activity
         nready = select(max_descriptors + 1, &rset, NULL, NULL, NULL);
+        fprintf(stderr, "nready = %d\n", nready);
         // create new client socket
         if (FD_ISSET(listen_socket, &rset))
         {
@@ -101,8 +102,11 @@ int main(int argc, char * argv[])
             }
             for (i = 0; i < FD_SETSIZE; i++)
             {
-                client[i] = new_socket;
-                break;
+                if (client[i] == -1)
+                {
+                    client[i] = new_socket;
+                    break;
+                }
             }
             if (i == FD_SETSIZE)
             {
@@ -111,37 +115,42 @@ int main(int argc, char * argv[])
             }
             FD_SET(new_socket, &allset);
             max_descriptors = (new_socket > max_descriptors) ? new_socket : max_descriptors;
-            max_clients = (i > max_clients) ? i : max_clients;
+            max_clients = (i > max_clients) ? ++i : max_clients;
+            fprintf(stderr, "New client #%d\n", i);
             if (--nready <= 0)
             {
                 continue;
             }
-            // handle receiving from a client
-            for (i = 0; i <= max_clients; i++)
+        }
+        // handle receiving from a client
+        for (i = 0; i <= max_clients; i++)
+        {
+            // check for empty socket
+            if ((sockfd = client[i]) < 0)
             {
-                // check for empty socket
-                if ((sockfd = client[i]) < 0)
+                continue;
+            }
+            if (FD_ISSET(sockfd, &rset))
+            {
+                fprintf(stderr, "socket #%d flagged\n", sockfd);
+                // read from sockets
+                n = read_from_socket(sockfd, bp, BUFLEN);
+                // modify the buffer accordingly
+                // add_timestamp_and_nickname()
+                // handle sending to all clients
+                write_to_clients(bp, BUFLEN, client, max_clients, client[i]);
+                FD_CLR(sockfd, &allset);
+                if (n == 0)
                 {
-                    continue;
+                    close(sockfd);
+                    client[i] = -1;
                 }
-                if (FD_ISSET(sockfd, &rset))
+                if (--nready <= 0)
                 {
-                    n = read_from_socket(sockfd, bp, BUFLEN);
-                    // handle sending to all clients
-                    write_to_clients(buf, BUFLEN, client, max_clients, i);
-                    if (n == 0)
-                    {
-                        close(sockfd);
-                        FD_CLR(sockfd, &allset);
-                        client[i] = -1;
-                    }
-                    if (--nready <= 0)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
-        }
+        } 
     }
     // free resources
     free(bp);
@@ -168,6 +177,22 @@ int main(int argc, char * argv[])
  */
 void write_to_clients(char *buf, int bufsize, int *clients, int num_clients, int sender)
 {
+    int i;
+    fprintf(stderr, "writing %s from client #%d\n", buf, sender);
+    for (i = 0; i < num_clients; i++)
+    {
+        if (clients[i] == -1 || clients[i] == sender)
+        {
+            continue;
+        }
+        fprintf(stderr, "attempting to send to %d\n", i);
+        if (send(clients[i], buf, bufsize, 0) == -1)
+        {
+            perror("Send failed");
+            exit(1);
+        }
+        fprintf(stderr, "after send\n");
+    }
 }
 
 /*
@@ -197,5 +222,6 @@ int read_from_socket(int socket, char *buf, int bufsize)
         total_bytes_read +=n;
         bytes_to_read -= n;
     }
+    fprintf(stderr, "Read %s\n", buf);
     return total_bytes_read;
 }
