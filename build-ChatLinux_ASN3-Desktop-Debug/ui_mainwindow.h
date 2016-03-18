@@ -15,7 +15,9 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
@@ -26,9 +28,15 @@ QT_BEGIN_NAMESPACE
 class Ui_MainWindow
 {
 public:
+    QAction *actionConnect;
+    QAction *actionDisconnect;
     QWidget *centralWidget;
     QTextEdit *textEdit;
+    QTextEdit *message_edit;
+    QTextEdit *viewClients;
+    QPushButton *sendButton;
     QMenuBar *menuBar;
+    QMenu *menuMenu;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -36,16 +44,34 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(400, 300);
+        MainWindow->resize(741, 453);
+        MainWindow->setLayoutDirection(Qt::LeftToRight);
+        actionConnect = new QAction(MainWindow);
+        actionConnect->setObjectName(QStringLiteral("actionConnect"));
+        actionDisconnect = new QAction(MainWindow);
+        actionDisconnect->setObjectName(QStringLiteral("actionDisconnect"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         textEdit = new QTextEdit(centralWidget);
         textEdit->setObjectName(QStringLiteral("textEdit"));
-        textEdit->setGeometry(QRect(10, 50, 291, 181));
+        textEdit->setGeometry(QRect(10, 10, 541, 321));
+        textEdit->setReadOnly(true);
+        message_edit = new QTextEdit(centralWidget);
+        message_edit->setObjectName(QStringLiteral("message_edit"));
+        message_edit->setGeometry(QRect(10, 350, 541, 41));
+        viewClients = new QTextEdit(centralWidget);
+        viewClients->setObjectName(QStringLiteral("viewClients"));
+        viewClients->setGeometry(QRect(560, 10, 171, 321));
+        viewClients->setReadOnly(true);
+        sendButton = new QPushButton(centralWidget);
+        sendButton->setObjectName(QStringLiteral("sendButton"));
+        sendButton->setGeometry(QRect(560, 350, 171, 41));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 400, 25));
+        menuBar->setGeometry(QRect(0, 0, 741, 25));
+        menuMenu = new QMenu(menuBar);
+        menuMenu->setObjectName(QStringLiteral("menuMenu"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -54,6 +80,10 @@ public:
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
 
+        menuBar->addAction(menuMenu->menuAction());
+        menuMenu->addAction(actionConnect);
+        menuMenu->addAction(actionDisconnect);
+
         retranslateUi(MainWindow);
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -61,7 +91,11 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Chat", 0));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Client", 0));
+        actionConnect->setText(QApplication::translate("MainWindow", "Connect", 0));
+        actionDisconnect->setText(QApplication::translate("MainWindow", "Disconnect", 0));
+        sendButton->setText(QApplication::translate("MainWindow", "Send", 0));
+        menuMenu->setTitle(QApplication::translate("MainWindow", "Menu", 0));
     } // retranslateUi
 
 };
