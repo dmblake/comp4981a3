@@ -14,12 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    connectdialog.cpp
+    connectdialog.cpp \
+    client.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
     ../network.h \
-    network.h
+    network.h \
+    client.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui
+
+LIBS += -pthread

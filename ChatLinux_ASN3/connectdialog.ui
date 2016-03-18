@@ -85,7 +85,7 @@
     <string>Username</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="ipAddress_2">
+  <widget class="QTextEdit" name="usernames">
    <property name="geometry">
     <rect>
      <x>90</x>

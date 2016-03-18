@@ -31,7 +31,7 @@ public:
     QAction *actionConnect;
     QAction *actionDisconnect;
     QWidget *centralWidget;
-    QTextEdit *textEdit;
+    QTextEdit *recvBox;
     QTextEdit *message_edit;
     QTextEdit *viewClients;
     QPushButton *sendButton;
@@ -52,10 +52,10 @@ public:
         actionDisconnect->setObjectName(QStringLiteral("actionDisconnect"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        textEdit = new QTextEdit(centralWidget);
-        textEdit->setObjectName(QStringLiteral("textEdit"));
-        textEdit->setGeometry(QRect(10, 10, 541, 321));
-        textEdit->setReadOnly(true);
+        recvBox = new QTextEdit(centralWidget);
+        recvBox->setObjectName(QStringLiteral("recvBox"));
+        recvBox->setGeometry(QRect(10, 10, 541, 321));
+        recvBox->setReadOnly(true);
         message_edit = new QTextEdit(centralWidget);
         message_edit->setObjectName(QStringLiteral("message_edit"));
         message_edit->setGeometry(QRect(10, 350, 541, 41));

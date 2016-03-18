@@ -30,7 +30,7 @@ public:
     QLabel *label_2;
     QPushButton *pushButton;
     QLabel *label_3;
-    QTextEdit *ipAddress_2;
+    QTextEdit *usernames;
 
     void setupUi(QDialog *ConnectDialog)
     {
@@ -55,9 +55,9 @@ public:
         label_3 = new QLabel(ConnectDialog);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setGeometry(QRect(10, 30, 71, 17));
-        ipAddress_2 = new QTextEdit(ConnectDialog);
-        ipAddress_2->setObjectName(QStringLiteral("ipAddress_2"));
-        ipAddress_2->setGeometry(QRect(90, 20, 241, 31));
+        usernames = new QTextEdit(ConnectDialog);
+        usernames->setObjectName(QStringLiteral("usernames"));
+        usernames->setGeometry(QRect(90, 20, 241, 31));
 
         retranslateUi(ConnectDialog);
 

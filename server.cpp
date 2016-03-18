@@ -246,7 +246,7 @@ void write_to_clients(char *buf, int bufsize, int *clients, int num_clients, int
     fprintf(stderr, "writing %s from client #%d\n", buf, sender);
     for (i = 0; i < num_clients; i++)
     {
-        if (clients[i] == -1 || clients[i] == sender)
+        if (clients[i] == -1)
         {
             continue;
         }

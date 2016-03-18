@@ -17,7 +17,7 @@
    <enum>Qt::LeftToRight</enum>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="recvBox">
     <property name="geometry">
      <rect>
       <x>10</x>

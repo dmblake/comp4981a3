@@ -18,7 +18,7 @@ CXXFLAGS      = -m64 -pipe -g -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 INCPATH       = -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I../ChatLinux_ASN3 -I/usr/include/qt5 -I/usr/include/qt5/QtWidgets -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtCore -I. -I. -I.
 LINK          = g++
 LFLAGS        = -m64
-LIBS          = $(SUBLIBS) -L/usr/X11R6/lib64 -lQt5Widgets -L/usr/lib/x86_64-linux-gnu -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/usr/X11R6/lib64 -pthread -lQt5Widgets -L/usr/lib/x86_64-linux-gnu -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /usr/lib/x86_64-linux-gnu/qt5/bin/qmake
@@ -47,11 +47,13 @@ OBJECTS_DIR   = ./
 
 SOURCES       = ../ChatLinux_ASN3/main.cpp \
 		../ChatLinux_ASN3/mainwindow.cpp \
-		../ChatLinux_ASN3/connectdialog.cpp moc_mainwindow.cpp \
+		../ChatLinux_ASN3/connectdialog.cpp \
+		../ChatLinux_ASN3/client.cpp moc_mainwindow.cpp \
 		moc_connectdialog.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		connectdialog.o \
+		client.o \
 		moc_mainwindow.o \
 		moc_connectdialog.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -285,7 +287,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/ChatLinux_ASN31.0.0 || mkdir -p .tmp/ChatLinux_ASN31.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/ChatLinux_ASN31.0.0/ && $(COPY_FILE) --parents ../ChatLinux_ASN3/mainwindow.h ../ChatLinux_ASN3/connectdialog.h ../network.h ../ChatLinux_ASN3/network.h .tmp/ChatLinux_ASN31.0.0/ && $(COPY_FILE) --parents ../ChatLinux_ASN3/main.cpp ../ChatLinux_ASN3/mainwindow.cpp ../ChatLinux_ASN3/connectdialog.cpp .tmp/ChatLinux_ASN31.0.0/ && $(COPY_FILE) --parents ../ChatLinux_ASN3/mainwindow.ui ../ChatLinux_ASN3/connectdialog.ui .tmp/ChatLinux_ASN31.0.0/ && (cd `dirname .tmp/ChatLinux_ASN31.0.0` && $(TAR) ChatLinux_ASN31.0.0.tar ChatLinux_ASN31.0.0 && $(COMPRESS) ChatLinux_ASN31.0.0.tar) && $(MOVE) `dirname .tmp/ChatLinux_ASN31.0.0`/ChatLinux_ASN31.0.0.tar.gz . && $(DEL_FILE) -r .tmp/ChatLinux_ASN31.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/ChatLinux_ASN31.0.0/ && $(COPY_FILE) --parents ../ChatLinux_ASN3/mainwindow.h ../ChatLinux_ASN3/connectdialog.h ../network.h ../ChatLinux_ASN3/network.h ../ChatLinux_ASN3/client.h .tmp/ChatLinux_ASN31.0.0/ && $(COPY_FILE) --parents ../ChatLinux_ASN3/main.cpp ../ChatLinux_ASN3/mainwindow.cpp ../ChatLinux_ASN3/connectdialog.cpp ../ChatLinux_ASN3/client.cpp .tmp/ChatLinux_ASN31.0.0/ && $(COPY_FILE) --parents ../ChatLinux_ASN3/mainwindow.ui ../ChatLinux_ASN3/connectdialog.ui .tmp/ChatLinux_ASN31.0.0/ && (cd `dirname .tmp/ChatLinux_ASN31.0.0` && $(TAR) ChatLinux_ASN31.0.0.tar ChatLinux_ASN31.0.0 && $(COMPRESS) ChatLinux_ASN31.0.0.tar) && $(MOVE) `dirname .tmp/ChatLinux_ASN31.0.0`/ChatLinux_ASN31.0.0.tar.gz . && $(DEL_FILE) -r .tmp/ChatLinux_ASN31.0.0
 
 
 clean:compiler_clean 
@@ -423,6 +425,7 @@ moc_mainwindow.cpp: /usr/include/qt5/QtWidgets/QMainWindow \
 		/usr/include/qt5/QtWidgets/qtabwidget.h \
 		/usr/include/qt5/QtGui/qicon.h \
 		../ChatLinux_ASN3/network.h \
+		../ChatLinux_ASN3/client.h \
 		../ChatLinux_ASN3/mainwindow.h
 	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) $(INCPATH) -I/usr/include/c++/4.8 -I/usr/include/x86_64-linux-gnu/c++/4.8 -I/usr/include/c++/4.8/backward -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../ChatLinux_ASN3/mainwindow.h -o moc_mainwindow.cpp
 
@@ -535,6 +538,13 @@ moc_connectdialog.cpp: /usr/include/qt5/QtWidgets/QDialog \
 		/usr/include/qt5/QtCore/qfiledevice.h \
 		/usr/include/qt5/QtGui/qvector2d.h \
 		/usr/include/qt5/QtGui/qtouchdevice.h \
+		../ChatLinux_ASN3/network.h \
+		../ChatLinux_ASN3/mainwindow.h \
+		/usr/include/qt5/QtWidgets/QMainWindow \
+		/usr/include/qt5/QtWidgets/qmainwindow.h \
+		/usr/include/qt5/QtWidgets/qtabwidget.h \
+		/usr/include/qt5/QtGui/qicon.h \
+		../ChatLinux_ASN3/client.h \
 		../ChatLinux_ASN3/connectdialog.h
 	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) $(INCPATH) -I/usr/include/c++/4.8 -I/usr/include/x86_64-linux-gnu/c++/4.8 -I/usr/include/c++/4.8/backward -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../ChatLinux_ASN3/connectdialog.h -o moc_connectdialog.cpp
 
@@ -672,6 +682,7 @@ main.o: ../ChatLinux_ASN3/main.cpp ../ChatLinux_ASN3/mainwindow.h \
 		/usr/include/qt5/QtWidgets/qtabwidget.h \
 		/usr/include/qt5/QtGui/qicon.h \
 		../ChatLinux_ASN3/network.h \
+		../ChatLinux_ASN3/client.h \
 		/usr/include/qt5/QtWidgets/QApplication \
 		/usr/include/qt5/QtWidgets/qapplication.h \
 		/usr/include/qt5/QtCore/qcoreapplication.h \
@@ -794,6 +805,7 @@ mainwindow.o: ../ChatLinux_ASN3/mainwindow.cpp ../ChatLinux_ASN3/mainwindow.h \
 		/usr/include/qt5/QtWidgets/qtabwidget.h \
 		/usr/include/qt5/QtGui/qicon.h \
 		../ChatLinux_ASN3/network.h \
+		../ChatLinux_ASN3/client.h \
 		ui_mainwindow.h \
 		/usr/include/qt5/QtCore/QVariant \
 		/usr/include/qt5/QtWidgets/QAction \
@@ -960,11 +972,17 @@ connectdialog.o: ../ChatLinux_ASN3/connectdialog.cpp ../ChatLinux_ASN3/connectdi
 		/usr/include/qt5/QtCore/qfiledevice.h \
 		/usr/include/qt5/QtGui/qvector2d.h \
 		/usr/include/qt5/QtGui/qtouchdevice.h \
+		../ChatLinux_ASN3/network.h \
+		../ChatLinux_ASN3/mainwindow.h \
+		/usr/include/qt5/QtWidgets/QMainWindow \
+		/usr/include/qt5/QtWidgets/qmainwindow.h \
+		/usr/include/qt5/QtWidgets/qtabwidget.h \
+		/usr/include/qt5/QtGui/qicon.h \
+		../ChatLinux_ASN3/client.h \
 		ui_connectdialog.h \
 		/usr/include/qt5/QtCore/QVariant \
 		/usr/include/qt5/QtWidgets/QAction \
 		/usr/include/qt5/QtWidgets/qaction.h \
-		/usr/include/qt5/QtGui/qicon.h \
 		/usr/include/qt5/QtWidgets/qactiongroup.h \
 		/usr/include/qt5/QtWidgets/QApplication \
 		/usr/include/qt5/QtWidgets/qapplication.h \
@@ -975,8 +993,6 @@ connectdialog.o: ../ChatLinux_ASN3/connectdialog.cpp ../ChatLinux_ASN3/connectdi
 		/usr/include/qt5/QtGui/qinputmethod.h \
 		/usr/include/qt5/QtWidgets/QButtonGroup \
 		/usr/include/qt5/QtWidgets/qbuttongroup.h \
-		/usr/include/qt5/QtWidgets/QDialogButtonBox \
-		/usr/include/qt5/QtWidgets/qdialogbuttonbox.h \
 		/usr/include/qt5/QtWidgets/QHeaderView \
 		/usr/include/qt5/QtWidgets/qheaderview.h \
 		/usr/include/qt5/QtWidgets/qabstractitemview.h \
@@ -993,9 +1009,24 @@ connectdialog.o: ../ChatLinux_ASN3/connectdialog.cpp ../ChatLinux_ASN3/connectdi
 		/usr/include/qt5/QtWidgets/qabstractslider.h \
 		/usr/include/qt5/QtWidgets/qstyle.h \
 		/usr/include/qt5/QtWidgets/qtabbar.h \
-		/usr/include/qt5/QtWidgets/qtabwidget.h \
-		/usr/include/qt5/QtWidgets/qrubberband.h
+		/usr/include/qt5/QtWidgets/qrubberband.h \
+		/usr/include/qt5/QtWidgets/QLabel \
+		/usr/include/qt5/QtWidgets/qlabel.h \
+		/usr/include/qt5/QtWidgets/QPushButton \
+		/usr/include/qt5/QtWidgets/qpushbutton.h \
+		/usr/include/qt5/QtWidgets/qabstractbutton.h \
+		/usr/include/qt5/QtWidgets/QTextEdit \
+		/usr/include/qt5/QtWidgets/qtextedit.h \
+		/usr/include/qt5/QtGui/qtextdocument.h \
+		/usr/include/qt5/QtGui/qtextoption.h \
+		/usr/include/qt5/QtGui/qtextcursor.h \
+		/usr/include/qt5/QtGui/qtextformat.h \
+		/usr/include/qt5/QtGui/qpen.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o connectdialog.o ../ChatLinux_ASN3/connectdialog.cpp
+
+client.o: ../ChatLinux_ASN3/client.cpp ../ChatLinux_ASN3/client.h \
+		../ChatLinux_ASN3/network.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o client.o ../ChatLinux_ASN3/client.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

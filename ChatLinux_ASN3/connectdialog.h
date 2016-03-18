@@ -12,6 +12,7 @@
 #include "stdio.h"
 #include <unistd.h>
 #include <netdb.h>
+#include "mainwindow.h"
 
 namespace Ui {
 class ConnectDialog;
