@@ -38,13 +38,13 @@ private slots:
 
 
 private:
-    void* recvMsg(void* param);
+    static void* recvMsg(void* param);
     Ui::MainWindow *ui;    
     char* username;
     char* server;
     char* port;
     int sockfd;
-    pthread_t* thrd1;
+    pthread_t thrd1;
 };
 
 #endif // MAINWINDOW_H

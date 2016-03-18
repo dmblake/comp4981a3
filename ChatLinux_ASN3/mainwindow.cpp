@@ -36,7 +36,7 @@ void MainWindow::on_actionConnect_triggered()
     c.exec();
     sockfd = connect_to_server(server,atoi(port));
 
-    pthread_create(&thrd1,0,recvMsg, NULL);
+    pthread_create(&thrd1,0,recvMsg, this);
 
     if(sockfd == -1){
         qDebug () <<  "unable to connect";
@@ -48,7 +48,7 @@ void MainWindow::on_actionConnect_triggered()
 
 
 void* MainWindow::recvMsg(void* param){
-    int sock = *(int*) param;
+    int sock = ((MainWindow*)param)->sockfd;
     int bytesRead = BUFLEN;
     char * bp;
     char buf[BUFLEN];
@@ -62,7 +62,7 @@ void* MainWindow::recvMsg(void* param){
    }
 
     QString text = QString(bp);
-    ui->recvBox->append(text);
+    ((MainWindow*)param)->ui->recvBox->append(text);
 }
 
 void MainWindow::on_actionDisconnect_triggered()
