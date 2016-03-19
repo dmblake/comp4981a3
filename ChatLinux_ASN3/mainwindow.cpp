@@ -55,14 +55,17 @@ void* MainWindow::recvMsg(void* param){
 
     int n = 0;
     bp = buf;
-    while ((n = recv (sock, buf, bytesRead, 0)) < BUFLEN)
-   {
-       bp += n;
-       bytesRead-= n;
-   }
+    while (1)
+    {
+        while ((n = recv (sock, buf, bytesRead, 0)) < BUFLEN)
+        {
+            bp += n;
+            bytesRead-= n;
+        }
 
-    QString text = QString(bp);
-    ((MainWindow*)param)->ui->recvBox->append(text);
+        QString text = QString(bp);
+        ((MainWindow*)param)->ui->recvBox->append(text);
+    }
 }
 
 void MainWindow::on_actionDisconnect_triggered()

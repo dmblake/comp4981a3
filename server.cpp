@@ -109,7 +109,6 @@ int main(int argc, char * argv[])
                 // add_timestamp_and_nickname()
                 // handle sending to all clients
                 write_to_clients(bp, BUFLEN, client, max_clients, client[i]);
-                FD_CLR(sockfd, &allset);
                 if (n == 0)
                 {
                     close(sockfd);
@@ -244,7 +243,7 @@ void write_to_clients(char *buf, int bufsize, int *clients, int num_clients, int
 {
     int i;
     fprintf(stderr, "writing %s from client #%d\n", buf, sender);
-    for (i = 0; i < num_clients; i++)
+    for (i = 0; i < MAX_CONN; i++)
     {
         if (clients[i] == -1)
         {

@@ -78,19 +78,19 @@ int connect_to_server(char * host, int port)
  */
 char * add_username_to_msg(char * username, char * msg)
 {
-    char * ret, *temp;
+    char *temp;
     int size;
+    temp = (char*)malloc(strlen(username) + strlen(msg));
     // check for overflow
-    temp = strcat(username, " : ");
-    temp = strcat(temp, msg);
+    strcpy(temp, username);
+    strcat(temp, " : ");
+    strcat(temp, msg);
     if ((size = strlen(temp)) > BUFLEN)
     {
         fprintf(stderr, "strings too large add_username_to_msg\n");
         return 0;
     }
-    ret = (char*)malloc(size);
-    ret = strncpy(ret, temp, size);
-    return ret;
+    return temp;
 }
 
 /*
@@ -115,7 +115,6 @@ int send_msg(int sockfd, char * msg, char * username, int buflen, int flags)
     modified_message = add_username_to_msg(username, msg);
     if (modified_message == 0)
     {
-        free(modified_message);
         return 0;
     }
     if ((num_sent = send(sockfd, modified_message, buflen, flags)) == 0)
