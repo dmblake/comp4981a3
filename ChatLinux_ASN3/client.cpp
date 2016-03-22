@@ -49,7 +49,7 @@ int connect_to_server(char * host, int port)
     if ((hp = gethostbyname(host)) == NULL)
     {
         perror("Invalid host");
-        exit(1);
+        return -1;
     }
     bcopy(hp->h_addr, (char *)&server.sin_addr, hp->h_length);
 

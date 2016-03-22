@@ -1,5 +1,48 @@
 #include "connectdialog.h"
 #include "ui_connectdialog.h"
+#include <QDebug>
+/*-------------------------------------------------------------------------------------------------
+ * SOURCE FILE:     connectdialog.cpp - The UI that allows client to connect to server (Dialog)
+ *
+ * PROGRAM:         ChatLinux_ASN3
+ *
+ * FUNCTIONS:       ConnectDialog::ConnectDialog(QWidget *parent)
+ *                  ConnectDialog::~ConnectDialog()
+ *                  void ConnectDialog::on_pushButton_clicked()
+ *
+ * DATE:            March 17th 2016
+ *
+ * REVISIONS:       N/A
+ *
+ * DESIGNER:        Dhivya Manohar
+ *
+ * PROGRAMMER:      Dhivya Manohar
+ *
+ * NOTES:           In order to start chatting with others, you have to first connect to the
+ *                  server. The button to connect to the server is located under the Menu
+ *                  tab called 'Connect'. Connect button opens a Dialog that has functionality
+ *                  in this file.
+ *
+ *------------------------------------------------------------------------------------------------*/
+
+/*-------------------------------------------------------------------------------------------------
+ * FUNCTION         ConnectDialog
+ *
+ * DATE:            March 17th 2016
+ *
+ * REVISIONS:       N/A
+ *
+ * DESIGNER:        Dhivya Manohar
+ *
+ * PROGRAMMER:      Dhivya Manohar
+ *
+ * INTERFACE:       ConnectDialog()
+ *
+ * RETURNS:         void
+ *
+ * NOTES:           This is a constructor for the ConnectDialog class.
+ *
+ *------------------------------------------------------------------------------------------------*/
 
 ConnectDialog::ConnectDialog(QWidget *parent) :
     QDialog(parent),
@@ -8,10 +51,50 @@ ConnectDialog::ConnectDialog(QWidget *parent) :
     ui->setupUi(this);
 }
 
+
+/*-------------------------------------------------------------------------------------------------
+ * FUNCTION         ~ConnectDialog
+ *
+ * DATE:            March 17th 2016
+ *
+ * REVISIONS:       N/A
+ *
+ * DESIGNER:        Dhivya Manohar
+ *
+ * PROGRAMMER:      Dhivya Manohar
+ *
+ * INTERFACE:       ~ConnectDialog()
+ *
+ * RETURNS:         void
+ *
+ * NOTES:           This is a deconstructor for the ConnectDialog class.
+ *
+ *------------------------------------------------------------------------------------------------*/
+
 ConnectDialog::~ConnectDialog()
 {
     delete ui;
 }
+
+/*-------------------------------------------------------------------------------------------------
+ * FUNCTION         on_pushButton_clicked
+ *
+ * DATE:            March 17th 2016
+ *
+ * REVISIONS:       N/A
+ *
+ * DESIGNER:        Dhivya Manohar
+ *
+ * PROGRAMMER:      Dhivya Manohar
+ *
+ * INTERFACE:       void on_pushButton_clicked()
+ *
+ * RETURNS:         void
+ *
+ * NOTES:           This function allows functionality for a button that sets the username,
+ *                  server and port in the main window. Calls function setUserName,
+ *                  setServer and setPort from MainWindow class.
+ *------------------------------------------------------------------------------------------------*/
 
 void ConnectDialog::on_pushButton_clicked()
 
@@ -30,4 +113,10 @@ void ConnectDialog::on_pushButton_clicked()
     QByteArray portArray = portString.toUtf8();
     ((MainWindow*)parent())->setPort(portArray.data());
     close();
+}
+
+
+void ConnectDialog::on_fileCheck_clicked(bool checked)
+{
+    ((MainWindow*)parent())->setFileFlag(checked);
 }

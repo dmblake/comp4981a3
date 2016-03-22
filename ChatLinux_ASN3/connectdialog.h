@@ -2,16 +2,6 @@
 #define CONNECTDIALOG_H
 
 #include <QDialog>
-#include "network.h"
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <cstring>
-#include <string.h>
-#include "stdlib.h"
-#include "stdio.h"
-#include <unistd.h>
-#include <netdb.h>
 #include "mainwindow.h"
 
 namespace Ui {
@@ -28,6 +18,7 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void on_fileCheck_clicked(bool checked);
 
 private:
     Ui::ConnectDialog *ui;

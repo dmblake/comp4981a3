@@ -2,18 +2,22 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "network.h"
-#include "client.h"
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <cstring>
-#include <string.h>
-#include "stdlib.h"
-#include "stdio.h"
 #include <unistd.h>
 #include <netdb.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "network.h"
+#include "client.h"
+#include "ui_mainwindow.h"
+#include "connectdialog.h"
+#include <QtDebug>
+#include <QFile>
+#include <QMessageBox>
+
 
 namespace Ui {
 class MainWindow;
@@ -30,6 +34,7 @@ public:
     void setUserName(char* name);
     void setServer(char* server);
     void setPort(char* port);
+    void setFileFlag(bool checked);
 
 private slots:
     void on_sendButton_clicked();
@@ -40,11 +45,12 @@ private slots:
 private:
     static void* recvMsg(void* param);
     Ui::MainWindow *ui;    
-    char* username;
+    static char* username;
     char* server;
     char* port;
     int sockfd;
     pthread_t thrd1;
+    static bool fileFlag;
 };
 
 #endif // MAINWINDOW_H
