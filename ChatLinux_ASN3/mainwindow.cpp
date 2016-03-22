@@ -112,6 +112,7 @@ void MainWindow::on_sendButton_clicked()
     QString msg =  ui->message_edit->toPlainText();
     QByteArray msgArray = msg.toUtf8();
     send_msg(sockfd,msgArray.data(),username,BUFLEN,0);
+    ui->message_edit->clear();
 }
 
 
