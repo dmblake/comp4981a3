@@ -1,7 +1,9 @@
 /*
  * Source file: server.cpp
  * Date: March 01, 2016
- * Revision: v2 -- March 05, 2016 -- broke up main into component functions
+ * Revision: 
+ *      v3 -- March 23, 2016 -- does not send to sender
+ *      v2 -- March 05, 2016 -- broke up main into component functions
  * Designer: Dylan & Dhivya
  * Programmer: Dylan & Dhivya
  * Functions:
@@ -16,7 +18,7 @@
 /*
  * Function: main
  * Date: March 01, 2016
- * Revision: v1
+ * Revision: v2 -- March 23, 2016 -- added Client structure
  * Designer: Dylan & Dhivya
  * Programmer: Dylan & Dhivya
  * Interface: int main (int argc, char* argv[])
@@ -32,7 +34,7 @@ int main(int argc, char * argv[])
     int listen_socket, port, max_descriptors, max_clients;
     int new_socket, sockfd;
     int nready;
-    int client[FD_SETSIZE]; // array to hold clients
+    Client clients[MAX_CONN]; // array to hold clients
     int i; // loop variable
     int client_pos = 0;
     char *bp;
@@ -63,30 +65,43 @@ int main(int argc, char * argv[])
     // initialize number of descriptors and clients
     max_descriptors = listen_socket;
     max_clients = -1;
-    for (i = 0; i < FD_SETSIZE; i++)
+    for (i = 0; i < MAX_CONN; i++)
     {
-        client[i] = -1; // -1 means available client
+        clients[i].socket = -1; // -1 means available client
     }
-    FD_ZERO(&allset); // clear the set
-    FD_SET(listen_socket, &allset); // add the listen socket to the set
     while (1)
     {
+        FD_ZERO(&allset); // clear the set
+        FD_SET(listen_socket, &allset); // add the listen socket to the set
         rset = allset;
+        max_descriptors = listen_socket;
+        // add each client to the set
+        for (i = 0; i < max_clients; i++)
+        {
+            if (clients[i].socket > 0)
+            {
+                FD_SET(clients[i].socket, &rset);
+            }
+
+            if (clients[i].socket > 0)
+            {
+                max_descriptors = clients[i].socket;
+            }
+        }
         // use select to determine if a socket has activity
         nready = select(max_descriptors + 1, &rset, NULL, NULL, NULL);
         fprintf(stderr, "nready = %d\n", nready);
         // create new client socket
         if (FD_ISSET(listen_socket, &rset))
         {
-            if ((new_socket = add_client(listen_socket, client, &client_pos)) == -1)
+            if ((new_socket = add_client(listen_socket, clients, &client_pos)) == -1)
             {
                 fprintf(stderr, "Unable to add client.\n");
                 exit(1);
             }
             // update socket set
             FD_SET(new_socket, &allset);
-            max_descriptors = (new_socket > max_descriptors) ? new_socket : max_descriptors;
-            max_clients = (client_pos > max_clients) ? client_pos : max_clients;
+            max_clients = (++client_pos > max_clients) ? client_pos : max_clients;
             if (--nready <= 0)
             {
                 continue;
@@ -96,23 +111,25 @@ int main(int argc, char * argv[])
         for (i = 0; i <= max_clients; i++)
         {
             // check for empty socket
-            if ((sockfd = client[i]) < 0)
+            if ((sockfd = clients[i].socket) < 0)
             {
                 continue;
             }
             if (FD_ISSET(sockfd, &rset))
             {
+                memset(bp, 0, BUFLEN);
                 fprintf(stderr, "socket #%d flagged\n", sockfd);
                 // read from sockets
                 n = read_from_socket(sockfd, bp, BUFLEN);
-                // modify the buffer accordingly
-                // add_timestamp_and_nickname()
-                // handle sending to all clients
-                write_to_clients(bp, BUFLEN, client, max_clients, client[i]);
+                // if no message received, assume client closed socket
                 if (n == 0)
                 {
                     close(sockfd);
-                    client[i] = -1;
+                    clients[i].socket = -1;
+                }
+                else {
+                    // handle sending to all clients
+                    write_to_clients(bp, BUFLEN, clients, max_clients, clients[i].socket);
                 }
                 if (--nready <= 0)
                 {
@@ -129,7 +146,7 @@ int main(int argc, char * argv[])
 /*
  * Function: add_client
  * Date: march 05, 2016
- * Revision: v1
+ * Revision: v2 -- added client structure
  * Designer: Dylan
  * Programmer: dylan
  * int add_client(int listen_socket, int * clients, int * client_pos)
@@ -144,7 +161,7 @@ int main(int argc, char * argv[])
  *      Adds a client to the client array given a listening socket.            `
  *      If client_pos is null, no indicator of position will be returned.
  */
-int add_client (int listen_socket, int * clients, int * client_pos)
+int add_client (int listen_socket, Client * clients, int * client_pos)
 {
     int client_len;
     struct sockaddr_in client_addr;
@@ -156,18 +173,18 @@ int add_client (int listen_socket, int * clients, int * client_pos)
         perror("Accept error");
         return -1;
     }
-    for (i = 0; i < FD_SETSIZE; i++)
+    for (i = 0; i < MAX_CONN; i++)
     {
-        if (clients[i] == -1)
+        if (clients[i].socket == -1)
         {
-            clients[i] = new_socket;
+            clients[i].socket = new_socket;
             break;
         }
     }
     if (client_pos != 0)
     {
         *client_pos = i;
-        if (*client_pos == FD_SETSIZE)
+        if (*client_pos == MAX_CONN)
         {
             fprintf(stderr, "Too many clients.\n");
             return -1;
@@ -224,9 +241,11 @@ int start_server(int port)
 /*
  * Function: write_to_clients
  * Date: March 01, 2016
- * Revision: v1
- * Designer: Dylan
- * Programmer: Dylan
+ * Revision: 
+ *          v3 -- added client structure
+ *          v2 -- March 23, does not send to original sender
+ * Designer: Dylan & Dhivya
+ * Programmer: Dylan & Dhivya
  * Interface: void write_to_clients(char *buf, int bufsize, int *clients, int num_clients, int sender)
  *              buf : buffer of message to send
  *              bufsize : max length of the buffer,
@@ -239,20 +258,20 @@ int start_server(int port)
  *  username and timestamp, then sends that modified message
  *  to each client EXCEPT the client identifed as the sender.
  */
-void write_to_clients(char *buf, int bufsize, int *clients, int num_clients, int sender)
+void write_to_clients(char *buf, int bufsize, Client *clients, int num_clients, int sender)
 {
     int i;
     fprintf(stderr, "writing %s from client #%d\n", buf, sender);
     for (i = 0; i < MAX_CONN; i++)
     {
-        if (clients[i] == -1 || clients[i] == sender)
+        if (clients[i].socket == -1 || clients[i].socket == sender)
         {
         	fprintf(stderr, "sender is %d\n", sender);
             continue;
         }
         fprintf(stderr, "i= %d\n", i);
-        fprintf(stderr, "clients[i]%d\n", clients[i]);
-        if (send(clients[i], buf, bufsize, 0) == -1)
+        fprintf(stderr, "clients[i]%d\n", clients[i].socket);
+        if (send(clients[i].socket, buf, bufsize, 0) == -1)
         {
             perror("Send failed");
             exit(1);
@@ -291,3 +310,4 @@ int read_from_socket(int socket, char *buf, int bufsize)
     fprintf(stderr, "Read %s\n", buf);
     return total_bytes_read;
 }
+
