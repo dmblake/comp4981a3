@@ -245,11 +245,13 @@ void write_to_clients(char *buf, int bufsize, int *clients, int num_clients, int
     fprintf(stderr, "writing %s from client #%d\n", buf, sender);
     for (i = 0; i < MAX_CONN; i++)
     {
-        if (clients[i] == -1)
+        if (clients[i] == -1 || clients[i] == sender)
         {
+        	fprintf(stderr, "sender is %d\n", sender);
             continue;
         }
-        fprintf(stderr, "attempting to send to %d\n", i);
+        fprintf(stderr, "i= %d\n", i);
+        fprintf(stderr, "clients[i]%d\n", clients[i]);
         if (send(clients[i], buf, bufsize, 0) == -1)
         {
             perror("Send failed");
