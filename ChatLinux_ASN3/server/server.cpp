@@ -319,8 +319,8 @@ int read_from_socket(int socket, char *buf, int bufsize)
 void get_username(Client * clients, int position)
 {
     int bread;
-    char uname[30];
-    bread = recv(clients[position].socket, uname, 30, 0);
+    char uname[BUFLEN];
+    bread = recv(clients[position].socket, uname, BUFLEN, 0);
     if (bread == 0)
         perror("recv fail in get_username");
     if (uname[0] == 4)

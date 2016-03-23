@@ -157,6 +157,8 @@ void MainWindow::on_actionConnect_triggered()
         msgBox.exec();
         return;
     }
+
+    pthread_create(&thrd1,0,recvMsg, this);
     char msg [30];
     msg [0] = 4;
     strcat(msg+1,username);
@@ -165,7 +167,6 @@ void MainWindow::on_actionConnect_triggered()
         perror("Send error");
         return;
     }
-    pthread_create(&thrd1,0,recvMsg, this);
 }
 
 /*-------------------------------------------------------------------------------------------------
@@ -206,37 +207,39 @@ void* MainWindow::recvMsg(void* param){
     {
         while ((n = recv (sock, buf, bytesRead, 0)) < BUFLEN)
         {
-            if(((int)buf[0]) == 5){
-                ((MainWindow*)param)->ui->viewClients->clear();
-                std::string str;
-                std::istringstream iss(buf+1);
-                while(iss>>str){
-                    clientsConnected.push_back(str);
-                }
-
-                for(std::vector<std::string>::iterator it = clientsConnected.begin(); it != clientsConnected.end(); ++it) {
-                    QString qstr = QString::fromStdString(*it);
-                    ((MainWindow*)param)->ui->viewClients->setText(qstr);
-                }
-                clientsConnected.clear();
-            }
             bp += n;
             bytesRead-= n;
         }
 
-        QString text = QString(bp);
-        ((MainWindow*)param)->ui->recvBox->setTextColor(Qt::black);
-        ((MainWindow*)param)->ui->recvBox->append(text);
+        if(buf[0] == 5){
+            //((MainWindow*)param)->ui->viewClients->
+            std::string str;
+            std::istringstream iss(buf+1);
+            while(iss>>str){
+                clientsConnected.push_back(str);
+            }
 
-        if(fileFlag == true && !(file.isOpen())){
-            if ( file.open(QIODevice::Append) )
-            {
+            for(std::vector<std::string>::iterator it = clientsConnected.begin(); it != clientsConnected.end(); ++it) {
+                QString qstr = QString::fromStdString(*it);
+                ((MainWindow*)param)->ui->viewClients->append(qstr);
+            }
+            clientsConnected.clear();
+        }
+        else{
+            QString text = QString(bp);
+            ((MainWindow*)param)->ui->recvBox->setTextColor(Qt::black);
+            ((MainWindow*)param)->ui->recvBox->append(text);
+
+            if(fileFlag == true && !(file.isOpen())){
+                if ( file.open(QIODevice::Append) )
+                {
+                    QTextStream stream( &file );
+                    stream <<bp<< endl;
+                }
+            } else if (fileFlag == true){
                 QTextStream stream( &file );
                 stream <<bp<< endl;
             }
-        } else if (fileFlag == true){
-            QTextStream stream( &file );
-            stream <<bp<< endl;
         }
 
     }
