@@ -97,8 +97,12 @@ int main(int argc, char * argv[])
             if ((new_socket = add_client(listen_socket, clients, &client_pos)) == -1)
             {
                 fprintf(stderr, "Unable to add client.\n");
-                exit(1);
+                break;
             }
+            // get username from new socket
+            get_username(clients, client_pos);
+            update_usernames(clients);
+            
             // update socket set
             FD_SET(new_socket, &allset);
             max_clients = (++client_pos > max_clients) ? client_pos : max_clients;
@@ -126,6 +130,7 @@ int main(int argc, char * argv[])
                 {
                     close(sockfd);
                     clients[i].socket = -1;
+                    update_usernames(clients);
                 }
                 else {
                     // handle sending to all clients
@@ -311,3 +316,33 @@ int read_from_socket(int socket, char *buf, int bufsize)
     return total_bytes_read;
 }
 
+void get_username(Client * clients, int position)
+{
+    int bread;
+    char uname[30];
+    bread = recv(clients[position].socket, uname, 30, 0);
+    if (bread == 0)
+        perror("recv fail in get_username");
+    if (uname[0] == 4)
+    {
+        strcpy(clients[position].username, uname+1);
+    } 
+}
+
+void update_usernames(Client * clients)
+{
+    char names[BUFLEN] = {0};
+    int i;
+    // set control character
+    names[0] = 5;
+    for (i = 0; i < MAX_CONN; i++)
+    {
+        if (clients[i].socket != -1)
+        {
+            // append usernames after control character
+            strcat(names+1, clients[i].username);
+            strcat(names+1, " ");
+        }
+    }
+    write_to_clients(names, BUFLEN, clients, MAX_CONN, -1);
+}
