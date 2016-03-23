@@ -39,6 +39,12 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="tabChangesFocus">
+     <bool>false</bool>
+    </property>
+    <property name="placeholderText">
+     <string/>
+    </property>
    </widget>
    <widget class="QTextEdit" name="viewClients">
     <property name="geometry">

@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     port = (char*)malloc(25);
     username = (char*)malloc(25);
     ui->setupUi(this);
+    ui->message_edit->setPlaceholderText("Type Message Here");
 }
 
 
@@ -111,7 +112,12 @@ void MainWindow::on_sendButton_clicked()
 
     QString msg =  ui->message_edit->toPlainText();
     QByteArray msgArray = msg.toUtf8();
-    send_msg(sockfd,msgArray.data(),username,BUFLEN,0);
+    send_msg(sockfd,msgArray.data(),username,BUFLEN,0);    
+
+    ui->recvBox->setTextColor(Qt::green);
+    QString str(username);
+    str.append(" : "+msg);
+    ui->recvBox->append(str);
     ui->message_edit->clear();
 }
 
@@ -195,7 +201,10 @@ void* MainWindow::recvMsg(void* param){
             bytesRead-= n;
         }
 
+
+
         QString text = QString(bp);
+        ((MainWindow*)param)->ui->recvBox->setTextColor(Qt::black);
         ((MainWindow*)param)->ui->recvBox->append(text);
 
         if(fileFlag == true && !(file.isOpen())){

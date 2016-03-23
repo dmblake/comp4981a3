@@ -48,7 +48,9 @@ ConnectDialog::ConnectDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ConnectDialog)
 {
-    ui->setupUi(this);
+    ui->setupUi(this);    
+    ui->ipAddress->setPlaceholderText("127.0.0.1");
+    ui->port->setPlaceholderText("4981");
 }
 
 
