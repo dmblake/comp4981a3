@@ -1,6 +1,6 @@
 #pragma once
 
-#include "network.h"
+#include "../network.h"
 
 #include <netinet/in.h>
 #include <sys/types.h>
@@ -13,7 +13,7 @@
 
 int main(int argc, char* argv[]);
 int read_from_socket(int socket, char *buf, int bufsize);
-void write_to_clients(char *buf, int bufsize, int *clients, int num_clients, int sender);
+void write_to_clients(char *buf, int bufsize, Client *clients, int num_clients, int sender);
 int start_server(int port);
-int add_client(int listen_socket, int * clients, int * client_pos);
+int add_client(int listen_socket, Client * clients, int * client_pos);
 
