@@ -59,6 +59,7 @@ public:
         message_edit = new QTextEdit(centralWidget);
         message_edit->setObjectName(QStringLiteral("message_edit"));
         message_edit->setGeometry(QRect(10, 350, 541, 41));
+        message_edit->setTabChangesFocus(false);
         viewClients = new QTextEdit(centralWidget);
         viewClients->setObjectName(QStringLiteral("viewClients"));
         viewClients->setGeometry(QRect(560, 10, 171, 321));
@@ -94,6 +95,7 @@ public:
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Client", 0));
         actionConnect->setText(QApplication::translate("MainWindow", "Connect", 0));
         actionDisconnect->setText(QApplication::translate("MainWindow", "Disconnect", 0));
+        message_edit->setPlaceholderText(QString());
         sendButton->setText(QApplication::translate("MainWindow", "Send", 0));
         menuMenu->setTitle(QApplication::translate("MainWindow", "Menu", 0));
     } // retranslateUi
