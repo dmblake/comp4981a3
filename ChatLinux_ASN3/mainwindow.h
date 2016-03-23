@@ -9,12 +9,17 @@
 #include <netdb.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <iostream>
+#include <cstring>
 #include <stdlib.h>
+#include <sstream>
+#include "string.h"
 #include "network.h"
 #include "client.h"
 #include "ui_mainwindow.h"
 #include "connectdialog.h"
 #include <QtDebug>
+#include <vector>
 #include <QFile>
 #include <QMessageBox>
 
@@ -51,6 +56,7 @@ private:
     int sockfd;
     pthread_t thrd1;
     static bool fileFlag;
+    static std::vector<std::string> clientsConnected;
 };
 
 #endif // MAINWINDOW_H

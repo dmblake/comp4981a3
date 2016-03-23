@@ -120,6 +120,25 @@ void ConnectDialog::on_pushButton_clicked()
 }
 
 
+/*-------------------------------------------------------------------------------------------------
+ * FUNCTION         on_fileCheck_clicked
+ *
+ * DATE:            March 21st 2016
+ *
+ * REVISIONS:       N/A
+ *
+ * DESIGNER:        Dhivya Manohar
+ *
+ * PROGRAMMER:      Dhivya Manohar
+ *
+ * INTERFACE:       void on_fileCheck_clicked()
+ *
+ * RETURNS:         void
+ *
+ * NOTES:           This function allows functionality to send over if client has checked for
+ *                  a file dump or not.
+ *------------------------------------------------------------------------------------------------*/
+
 void ConnectDialog::on_fileCheck_clicked(bool checked)
 {
     ((MainWindow*)parent())->setFileFlag(checked);
