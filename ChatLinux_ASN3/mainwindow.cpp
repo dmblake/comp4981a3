@@ -58,7 +58,9 @@ MainWindow::MainWindow(QWidget *parent) :
     port = (char*)malloc(25);
     username = (char*)malloc(25);
     ui->setupUi(this);
+    ui->message_edit->setDisabled(true);
     ui->message_edit->setPlaceholderText("Type Message Here");
+    ui->actionDisconnect->setDisabled(true);
 }
 
 
@@ -172,7 +174,10 @@ void MainWindow::on_actionConnect_triggered()
         msgBox.exec();
         return;
     }
-
+    this->setWindowTitle(username);
+    ui->message_edit->setEnabled(true);
+    ui->actionConnect->setDisabled(true);
+    ui->actionDisconnect->setEnabled(true);
     pthread_create(&thrd1,0,recvMsg, this);
     char msg [30] = {0};
     msg [0] = 4;
@@ -282,9 +287,15 @@ void* MainWindow::recvMsg(void* param){
 
 void MainWindow::on_actionDisconnect_triggered()
 {
-    QMessageBox msgBox;
-    msgBox.setText("You're disconnected!");
-    msgBox.exec();
+    if((disconnectSocket(sockfd))== 0){
+        QMessageBox msgBox;
+        msgBox.setText("You're disconnected!");
+        msgBox.exec();
+        this->setWindowTitle("Client");
+        ui->actionConnect->setEnabled(true);
+        ui->actionDisconnect->setDisabled(true);
+        ui->message_edit->setDisabled(true);
+    }
     return;
 }
 

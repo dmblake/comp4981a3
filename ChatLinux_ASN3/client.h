@@ -16,6 +16,7 @@ int connect_to_server(char *host, int port);
 char * add_username_to_msg(char * username, char * msg);
 int send_msg(int sockfd, char * msg, char * username, int buflen, int flags);
 void* recvMsg(void* param);
+int disconnectSocket(int socket);
 
 
 #endif // CLIENT_H

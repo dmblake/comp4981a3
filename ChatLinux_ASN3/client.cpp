@@ -127,5 +127,9 @@ int send_msg(int sockfd, char * msg, char * username, int buflen, int flags)
     return num_sent;
 }
 
+int disconnectSocket(int socket){
+    return close(socket);
+}
+
 
 

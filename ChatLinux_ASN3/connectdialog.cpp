@@ -116,6 +116,7 @@ void ConnectDialog::on_pushButton_clicked()
     QString portString =  ui->port->toPlainText();
     QByteArray portArray = portString.toUtf8();
     ((MainWindow*)parent())->setPort(portArray.data());
+
     close();
 }
 
