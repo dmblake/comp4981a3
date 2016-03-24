@@ -117,6 +117,21 @@ void MainWindow::on_sendButton_clicked()
     str.append(" : "+msg);
     ui->recvBox->append(str);
     QByteArray msgArray = msg.toUtf8();
+
+    QString filename= username;
+    filename.append(".txt");
+    QFile file (filename);
+    if(fileFlag == true && !(file.isOpen())){
+        if ( file.open(QIODevice::Append) )
+        {
+            QTextStream stream( &file );
+            stream <<str<< endl;
+        }
+    } else if (fileFlag == true){
+        QTextStream stream( &file );
+        stream <<str<< endl;
+    }
+
     send_msg(sockfd,msgArray.data(),username,BUFLEN,0);    
 
     ui->message_edit->clear();
@@ -199,9 +214,6 @@ void* MainWindow::recvMsg(void* param){
     int n = 0;
     bp = buf;
 
-    QString filename= username;
-    filename.append(".txt");
-    QFile file( filename );
 
     while (1)
     {
@@ -210,6 +222,10 @@ void* MainWindow::recvMsg(void* param){
             bp += n;
             bytesRead-= n;
         }
+
+        QString filename= username;
+        filename.append(".txt");
+        QFile file (filename);
 
         if(buf[0] == 5){
             ((MainWindow*)param)->ui->viewClients->clear();
