@@ -2,6 +2,7 @@
 
 #include "../network.h"
 
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -18,3 +19,4 @@ int start_server(int port);
 int add_client(int listen_socket, Client * clients, int * client_pos);
 void get_username(Client * clients, int position);
 void update_usernames(Client * clients);
+void print_clients(Client * clients);

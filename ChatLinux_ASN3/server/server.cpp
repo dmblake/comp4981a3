@@ -106,6 +106,8 @@ int main(int argc, char * argv[])
             // update socket set
             FD_SET(new_socket, &allset);
             max_clients = (++client_pos > max_clients) ? client_pos : max_clients;
+            // print current list of clients
+            print_clients(clients);
             if (--nready <= 0)
             {
                 continue;
@@ -131,6 +133,7 @@ int main(int argc, char * argv[])
                     close(sockfd);
                     clients[i].socket = -1;
                     update_usernames(clients);
+                    print_clients(clients);
                 }
                 else {
                     // handle sending to all clients
@@ -195,6 +198,8 @@ int add_client (int listen_socket, Client * clients, int * client_pos)
             return -1;
         }
     }
+    // add ip address to structure
+    inet_ntop(AF_INET, &client_addr.sin_addr.s_addr, clients[i].ip, 25);
     return new_socket;
 }
 
@@ -345,4 +350,21 @@ void update_usernames(Client * clients)
         }
     }
     write_to_clients(names, BUFLEN, clients, MAX_CONN, -1);
+}
+
+void print_clients(Client * clients)
+{
+    int i;
+    for (i = 0; i < MAX_CONN; i++)
+    {
+        if (clients[i].socket != -1)
+        {
+            fprintf(stderr, "USERNAME: %s\n"
+                    "IP ADDRESS:%s\n"
+                    "SOCKET #%d\n",
+                    clients[i].username,
+                    clients[i].ip,
+                    clients[i].socket);
+        }
+    }
 }
