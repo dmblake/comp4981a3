@@ -79,8 +79,15 @@ int main(int argc, char * argv[])
         for (i = 0; i < max_clients; i++)
         {
             if (clients[i].socket > 0)
-            {
-                FD_SET(clients[i].socket, &rset);
+            {   
+                if (fcntl(clients[i].socket, F_GETFL, 0) < 0) {
+                    FD_SET(clients[i].socket, &rset);
+                } else {
+                    close(clients[i].socket);
+                    clients[i].socket = -1;
+                    update_usernames(clients);
+                    print_clients(clients);
+                }
             }
 
             if (clients[i].socket > 0)
