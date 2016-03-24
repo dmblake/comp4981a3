@@ -80,7 +80,7 @@ char * add_username_to_msg(char * username, char * msg)
 {
     char *temp;
     int size;
-    temp = (char*)malloc(strlen(username) + strlen(msg));
+    temp = (char*)malloc(BUFLEN);
     // check for overflow
     strcpy(temp, username);
     strcat(temp, " : ");
