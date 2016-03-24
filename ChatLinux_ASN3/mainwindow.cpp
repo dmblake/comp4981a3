@@ -159,7 +159,7 @@ void MainWindow::on_actionConnect_triggered()
     }
 
     pthread_create(&thrd1,0,recvMsg, this);
-    char msg [30];
+    char msg [30] = {0};
     msg [0] = 4;
     strcat(msg+1,username);
     if ((send(sockfd, msg, BUFLEN, 0)) == 0)
@@ -212,7 +212,7 @@ void* MainWindow::recvMsg(void* param){
         }
 
         if(buf[0] == 5){
-            //((MainWindow*)param)->ui->viewClients->
+            ((MainWindow*)param)->ui->viewClients->clear();
             std::string str;
             std::istringstream iss(buf+1);
             while(iss>>str){
@@ -221,7 +221,7 @@ void* MainWindow::recvMsg(void* param){
 
             for(std::vector<std::string>::iterator it = clientsConnected.begin(); it != clientsConnected.end(); ++it) {
                 QString qstr = QString::fromStdString(*it);
-                ((MainWindow*)param)->ui->viewClients->append(qstr);
+                ((MainWindow*)param)->ui->viewClients->addItem(qstr);
             }
             clientsConnected.clear();
         }
@@ -363,3 +363,4 @@ void MainWindow::setPort(char* por){
 void MainWindow::setFileFlag(bool checked){
     fileFlag = checked;
 }
+

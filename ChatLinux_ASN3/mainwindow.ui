@@ -46,19 +46,6 @@
      <string/>
     </property>
    </widget>
-   <widget class="QTextEdit" name="viewClients">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>10</y>
-      <width>171</width>
-      <height>321</height>
-     </rect>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QPushButton" name="sendButton">
     <property name="geometry">
      <rect>
@@ -70,6 +57,16 @@
     </property>
     <property name="text">
      <string>Send</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="viewClients">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>10</y>
+      <width>171</width>
+      <height>321</height>
+     </rect>
     </property>
    </widget>
   </widget>
